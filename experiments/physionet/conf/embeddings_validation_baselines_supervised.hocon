@@ -1,0 +1,22 @@
+{
+    include "embeddings_validation.hocon"
+
+    report_file: "../results/physionet_baselines_supervised_TRGRU.txt"
+
+    features: {
+    }
+
+    external_scores: {        
+        mles_finetuning: "../results/TRGRU_finetuning_results.json"
+    }
+
+    report: {
+        is_check_train: false
+        error_handling: fail
+        print_all_metrics: false
+
+        metrics: {
+            auroc: {float_format: "{:.3f}", baseline_key=["nn"], split_columns: true}
+        }
+    }
+}

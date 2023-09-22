@@ -23,6 +23,7 @@ class FoldEstimator(luigi.Task):
     total_cpu_count = luigi.IntParameter()
 
     def requires(self):
+        print('req_FE')
         return FoldSplitter(conf=self.conf)
 
     def output(self):
@@ -45,12 +46,13 @@ class FoldEstimator(luigi.Task):
     def run(self):
         conf = Config.read_file(self.conf)
 
+        print('run FE')
         x_transf = XTransformer(conf, self.feature_name, conf.models[self.model_name]['preprocessing'])
         conf_model = conf.models[self.model_name]
         model = cls_loader.create(conf_model['cls_name'], conf_model['params'])
         scorer = Metrics(conf)
         on_error = conf.error_handling
-
+        print(model, self.fold_id)
         results = {
             'fold_id': self.fold_id,
             'model_name': self.model_name,
@@ -78,8 +80,10 @@ class FoldEstimator(luigi.Task):
                 results['scores_train'] = scorer.score(model, X_train, target_train.target_values)
             results['scores_valid'] = self.score_data(current_fold['valid']['path'], x_transf, model, scorer)
             if current_fold['test'] is not None:
+                print(current_fold['test']['path'])
                 results['scores_test'] = self.score_data(current_fold['test']['path'], x_transf, model, scorer)
-
+            
+            print(results)
             results['process_info'] = {
                 'feature_fit_info': x_transf.get_feature_fit_info(),
                 'feature_load_time': x_transf.load_time.seconds,

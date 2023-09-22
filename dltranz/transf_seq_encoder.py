@@ -94,3 +94,31 @@ class TransformerSeqEncoder(nn.Module):
         out = torch.transpose(out, 0, 1)
 
         return PaddedBatch(out, x.seq_lens)
+
+class CustomTransformerSeqEncoder(nn.Module):
+    def __init__(self, input_size):
+        super().__init__()
+
+
+        self.encoder_norm = LayerNorm(input_size)
+
+        encoder_layer = nn.TransformerEncoderLayer(
+            d_model=input_size, nhead=1
+        )
+
+        self.encoder = nn.TransformerEncoder(
+            encoder_layer,
+            1,
+            norm=self.encoder_norm,
+            enable_nested_tensor=True,
+            mask_check=True,
+        )
+
+    def forward(self, x):
+        batch_size = x.payload.size()[0]
+        seq_len_max = x.payload.size()[1]
+        
+
+        out = self.encoder(x.payload)
+
+        return PaddedBatch(out, x.seq_lens)

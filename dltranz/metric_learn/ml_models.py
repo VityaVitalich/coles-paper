@@ -8,7 +8,7 @@ from torch.autograd import Function
 
 from dltranz.agg_feature_model import AggFeatureModel
 from dltranz.baselines.cpc import CPC_Ecoder
-from dltranz.transf_seq_encoder import TransformerSeqEncoder
+from dltranz.transf_seq_encoder import TransformerSeqEncoder, CustomTransformerSeqEncoder
 from dltranz.seq_encoder import RnnEncoder, LastStepEncoder, PerTransTransf, FirstStepEncoder, PaddedBatch, \
     DropoutEncoder
 from dltranz.trx_encoder import TrxEncoder
@@ -121,6 +121,29 @@ def cpc_model(params):
     cpc_e = CPC_Ecoder(trx_e, rnn_e, trx_e_out_size, params['cpc'])
     return cpc_e
 
+def TRGRU(params):
+    input_size = TrxEncoder.output_size(params['trx_encoder'])
+    encoder_layers = [
+        TrxEncoder(params['trx_encoder']),
+        CustomTransformerSeqEncoder(input_size),
+        RnnEncoder(input_size, params['rnn']),
+        LastStepEncoder(),
+    ]
+
+    layers = [torch.nn.Sequential(*encoder_layers)]
+    if 'projection_head' in params:
+        logger.info('projection_head included')
+        layers.extend(projection_head(params['rnn.hidden_size'], params['projection_head.output_size']))
+
+    if params.get('embeddings_dropout', 0):
+        layers.append(DropoutEncoder(params['embeddings_dropout']))
+        logger.info('DropoutEncoder included')
+
+    if params['use_normalization_layer']:
+        layers.append(L2Normalization())
+        logger.info('L2Normalization included')
+    m = torch.nn.Sequential(*layers)
+    return m
 
 def ml_model_by_type(model_type):
     model = {
@@ -128,6 +151,7 @@ def ml_model_by_type(model_type):
         'transf': transformer_model,
         'agg_features': agg_feature_model,
         'cpc_model': cpc_model,
+        'TRGRU': TRGRU,
     }[model_type]
     return model
 

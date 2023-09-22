@@ -41,4 +41,6 @@ if __name__ == '__main__':
             conf=conf_file_name,
             total_cpu_count=args.total_cpu_count,
         )
+
+    print('in task', task)
     luigi.build([task], workers=args.workers, local_scheduler=True, log_level=args.log_level)

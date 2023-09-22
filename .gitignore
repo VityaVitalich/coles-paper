@@ -9,6 +9,8 @@ deb.env
 .ipynb_checkpoints
 experiments/*/runs
 experiments/*/models
+experiments/*/data
+experiments/*/results
 *.egg-info
 .DS_Store
 lightning_logs

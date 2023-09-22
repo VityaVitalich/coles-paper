@@ -223,7 +223,9 @@ class ReportByFolds(luigi.Task):
     def requires(self):
         conf = Config.read_file(self.conf)
 
+        print(conf.folds)
         for fold_id in conf.folds:
+            
             yield FoldEstimator(
                 conf=self.conf,
                 model_name=self.model_name,
@@ -244,10 +246,12 @@ class ReportCollect(luigi.Task):
     f = None
 
     def requires(self):
+        print('req')
         conf = Config.read_file(self.conf)
 
         for model_name in conf.models:
             for feature_name in conf.features:
+                print(model_name, feature_name)
                 yield ReportByFolds(
                     conf=self.conf,
                     model_name=model_name,
@@ -255,6 +259,7 @@ class ReportCollect(luigi.Task):
                     total_cpu_count=self.total_cpu_count,
                 )
         for name, external_path in conf.external_scores.items():
+            print(name, external_path)
             yield ExternalScore(
                 conf=self.conf,
                 name=name,
@@ -300,6 +305,7 @@ class ReportCollect(luigi.Task):
     def run(self):
         conf = Config.read_file(self.conf)
 
+        print('run')
         splits = []
         if conf['report.is_check_train']:
             splits.append('scores_train')
@@ -307,6 +313,7 @@ class ReportCollect(luigi.Task):
         if 'test_id' in conf['split']:
             splits.append('scores_test')
 
+        
         pd_report, total_count, error_count = self.load_results()
         pd_split_report = pd_report.loc[splits].unstack(0).reindex(columns=splits)
         metric_index = {m: pd_split_report for m in pd_split_report.index.get_level_values(0).unique()}

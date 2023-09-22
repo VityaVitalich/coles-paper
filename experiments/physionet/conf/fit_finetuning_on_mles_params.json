@@ -1,0 +1,111 @@
+{
+  "params": {
+    "device": "cuda",
+
+    "model_type": "TRGRU",
+    "ensemble_size": 1,
+    "trx_encoder": {
+      "embeddings": {
+        "Gender": {"in": 3, "out": 24, "max_value": 4},
+        "ICUType": {"in": 5, "out": 4, "max_value": 5},
+        "MechVent": {"in": 2, "out": 4, "max_value": 3}
+    },
+      "numeric_values": {
+        "Age": "identity",
+        "Height": "identity",
+        "Weight": "identity",
+        "Albumin": "identity",
+        "ALP": "identity",
+        "ALT": "identity",
+        "AST": "identity",
+        "Bilirubin": "identity",
+        "BUN": "identity",
+        "Cholesterol": "identity",
+        "Creatinine": "identity",
+        "DiasABP": "identity",
+        "FiO2": "identity",
+        "GCS": "identity",
+        "Glucose": "identity",
+        "HCO3": "identity",
+        "HCT": "identity",
+        "HR": "identity",
+        "K": "identity",
+        "Lactate": "identity",
+        "Mg": "identity",
+        "MAP": "identity",
+        "Na": "identity",
+        "NIDiasABP": "identity",
+        "NIMAP": "identity",
+        "NISysABP": "identity",
+        "PaCO2": "identity",
+        "PaO2": "identity",
+        "pH": "identity",
+        "Platelets": "identity",
+        "RespRate": "identity",
+        "SaO2": "identity",
+        "SysABP": "identity",
+        "Temp": "identity",
+        "TroponinI": "identity",
+        "TroponinT": "identity",
+        "Urine": "identity",
+        "WBC": "identity"
+      }
+    },
+    "rnn": {
+      "hidden_size": 128
+    },
+    "train": {
+      "random_neg": false,
+      "trx_dropout": 0.01,
+      "max_seq_len": 1200,
+      "clip_seq": {
+        "min_len": 25,
+        "max_len": 350
+      },
+      "batch_size": 128,
+      "num_workers": 16,
+      "loss": "bce",
+      "lr": 0.003,
+      "optimiser_params": {
+        "0.": {"lr": 0.0001},
+        "1.": {"lr": 0.0001}
+      },
+      "weight_decay": 0.0,
+      "n_epoch": 30
+    },
+    "lr_scheduler": {
+      "step_size": 1,
+      "step_gamma": 0.40
+    },
+    "valid": {
+      "max_seq_len": 1200,
+      "batch_size": 512,
+      "num_workers": 8
+    },
+    "norm_scores": false,
+    "score_metric": "auroc",
+
+    "pretrained_model_path": "models/mles_model_for_finetuning.p",
+    "use_batch_norm": true
+  },
+
+  "save_model": false,
+
+  "output": {
+    "valid": {
+      "path": "data/mles_finetuning_scores/valid",
+      "format": "pickle"
+    },
+    "test": {
+      "path": "data/mles_finetuning_scores/test",
+      "format": "pickle"
+    },
+    "columns": ["cl_id"]
+  },
+
+  "stats": {
+    "model_name": "nn",
+    "feature_name": "mles_finetuning",
+    "path": "results/mles_finetuning_results.json"
+  }
+}

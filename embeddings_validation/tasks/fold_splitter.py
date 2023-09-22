@@ -23,13 +23,15 @@ class FoldSplitter(luigi.Task):
     def run(self):
         conf = Config.read_file(self.conf)
         validation_schema = conf.validation_schema
-
+        print(validation_schema)
         self.output().makedirs()
 
         folds = None
         if validation_schema == Config.VALID_TRAIN_TEST:
+            print('5')
             folds = self.train_test_split()
         if validation_schema == Config.VALID_CROSS_VAL:
+            print('6')
             folds = self.cross_val_split()
         assert folds is not None
 
@@ -116,6 +118,7 @@ class FoldSplitter(luigi.Task):
         else:
             ids_test = None
         ids_train = IdFile.read_table(conf, **conf['split.train_id'])
+        print(ids_train)
         ids_train, _, ids_test = self.check_ids_intersection(ids_train, None, ids_test)
 
         if 'test_id' in conf['split']:

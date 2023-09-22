@@ -6,11 +6,13 @@
     "ensemble_size": 1,
     "trx_encoder": {
       "embeddings": {
-        "trans_date": {"in": 800},
-        "small_group": {"in": 250}
+        "mcc": {"in": 100, "out": 16},
+        "channel_type": {"in": 4, "out": 2},
+        "currency": {"in": 4, "out": 2},
+        "trx_category": {"in": 10, "out": 2}
       },
       "numeric_values": {
-        "amount_rur": "identity"
+        "amount": "identity"
       }
     },
     "rnn": {
@@ -18,27 +20,26 @@
     },
     "train": {
       "random_neg": false,
-      "trx_dropout": 0.005,
+      "trx_dropout": 0.01,
       "max_seq_len": 1200,
-      "SubsamplingDataset": {
-        "min_seq_len_s": 30,
-        "min_seq_len_e": 300,
-        "max_seq_len_s": 120,
-        "max_seq_len_e": 700,
-        "crop_proba_init": 1.0,
-        "crop_proba_gamma": 1.0,
-        "total_n_epoch": 15
+      "clip_seq": {
+        "min_len": 250,
+        "max_len": 350
       },
       "batch_size": 32,
       "num_workers": 16,
-      "loss": "NLLLoss",
-      "lr": 0.002,
+      "loss": "bce",
+      "lr": 0.0015,
+      "optimiser_params": {
+        "0.": {"lr": 0.0001},
+        "1.": {"lr": 0.0001}
+      },
       "weight_decay": 0.0,
-      "n_epoch": 3
+      "n_epoch": 4
     },
     "lr_scheduler": {
-      "step_size": 5,
-      "step_gamma": 0.4
+      "step_size": 1,
+      "step_gamma": 0.60
     },
     "valid": {
       "max_seq_len": 1200,
@@ -46,10 +47,10 @@
       "num_workers": 8
     },
     "norm_scores": false,
-    "score_metric": "accuracy",
+    "score_metric": "auroc",
 
     "pretrained_model_path": "models/cpc_model.p",
-    "use_batch_norm": true
+    "use_batch_norm": false
   },
 
   "save_model": false,
@@ -63,7 +64,7 @@
       "path": "data/cpc_finetuning_scores/test",
       "format": "pickle"
     },
-    "columns": ["client_id"]
+    "columns": ["cl_id"]
   },
 
   "stats": {

@@ -47,6 +47,7 @@ class XTransformer:
     def transform(self, df_target):
         features = self.get_df_features(df_target)
         X = features
+        print(X)
         for p in self.preprocessing:
             X = p.transform(X)
         return X
